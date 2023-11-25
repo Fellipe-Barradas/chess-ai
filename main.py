@@ -17,13 +17,15 @@ def main():
         if Game.is_player_turn(board, player_color):
             player_move = Game.get_player_move(board)
             board.push_san(player_move.uci())
+            print("")
         else:
             result = ai.get_best_move(board)
-            print(f"Black move: {result.move}")
-            board.push(result.move)
+            print(f"IA movimento: {result}")
+            board.push(chess.Move.from_uci(result))
+            print(board)
+            print(f"Pontos avaliados: {ai.get_eval(board)} \n")
 
-        print(board)
-        print(f"Pontos avalido: {ai.get_eval(board)} \n")
+        
 
     print("Fim de jogo! ")
 

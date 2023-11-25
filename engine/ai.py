@@ -1,18 +1,16 @@
-import chess.engine
-
+from engine.engine import Engine
+import chess
 class Ai:
     def __init__(self, color):
-        self.engine = chess.engine.SimpleEngine.popen_uci("/home/luis/virtual_env/chess-ai/engine/stockfish/stockfish/stockfish-ubuntu-x86-64-avx2")
+        self.engine = Engine()
         self.color = color
 
     def get_best_move(self, board):
-        return self.engine.play(board, chess.engine.Limit(time=0.5))
+        return self.engine.get_best_move(board)
     
     def get_eval(self, board):
-        if self.color == chess.WHITE:
-            return self.engine.analyse(board, chess.engine.Limit(time=0.5))["score"].white().score()
-        
-        return self.engine.analyse(board, chess.engine.Limit(time=0.1))["score"].black().score()
+        score = self.engine.get_eval(board)
+        return score
     
     def __del__(self):
         self.engine.quit()
