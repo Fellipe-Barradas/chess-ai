@@ -1,5 +1,6 @@
 import PySimpleGUI as sg      
 import chess
+from game import Game
 
 pieces = {
     'r': "images/torre_p.png",
@@ -17,28 +18,8 @@ pieces = {
     '': "images/vazio.png"
 }
 
-def check_if_is_possible_move(board, destination):
-    return destination in [move.uci() for move in board.legal_moves]
-
 def update_element(window, i, j, color):
     window[(i,j)].update(button_color = color)
-    
-
-def get_button_color(i,j):
-    return "#7c7c7c" if (i + j) % 2 == 0 else "#cccccc"
-
-# Função para converter a posição do tabuleiro para a notação do chess
-def make_move(origin, destination):
-    colluns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-    rows = ['8', '7', '6', '5', '4', '3', '2', '1']
-
-    origin_col = colluns[origin['col']]
-    origin_row = rows[origin['row']]
-
-    destination_col = colluns[destination['col']]
-    destination_row = rows[destination['row']]
-
-    return f"{origin_col}{origin_row}{destination_col}{destination_row}"
 
 # Função para desenhar o tabuleiro
 def draw_board_by_fen(fen):
@@ -52,8 +33,7 @@ def draw_board_by_fen(fen):
         row = []
         for j in range(len(board[i])):
             element = board[i][j]
-
-            
+         
             if element.isdigit():
                 for k in range(int(element)):
                     row.append(sg.Button("", 
@@ -62,7 +42,7 @@ def draw_board_by_fen(fen):
                                          key=(i, k),
                                          image_filename=pieces[""],
                                          image_size=(60,60),
-                                         button_color=(get_button_color(i,k))
+                                         button_color=(Game.get_button_color(i,k))
                                         )
                               )
             else:
@@ -72,7 +52,7 @@ def draw_board_by_fen(fen):
                                   key=(i, j), 
                                   image_filename=pieces[element],
                                   image_size=(60,60),
-                                  button_color=(get_button_color(i,j))
+                                  button_color=(Game.get_button_color(i,j))
                                   )
                 
                 row.append(piece)  
@@ -80,6 +60,26 @@ def draw_board_by_fen(fen):
         layout.append(row)
 
     return layout
+
+def highlight_move(window, board, move):
+    piece = board.piece_at(chess.SQUARES[chess.parse_square(move)])
+
+    if piece == chess.Piece.from_symbol("P"):
+        pos = Game.convert_from_uci(move)
+        if pos["row"] == 6:
+            for i in range(2, 0, -1):
+                update_element(window, pos["row"] - i, pos["col"], "red")
+        else:
+            update_element(window, pos["row"] - 1, pos["col"], "red")
+            
+    elif piece == chess.Piece.from_symbol("p"):
+        pos = Game.convert_from_uci(move)
+        if pos["row"] == 1:
+            for i in range(2,0,-1):
+                update_element(window, pos["row"] + i, pos["col"], "red")
+        else:
+            update_element(window, pos["row"] + 1, pos["col"], "red")
+    
 
 
 ## Main
@@ -94,6 +94,7 @@ window = sg.Window('Tabuleiro',
         ])
 
 selected_piece = None
+
 while True:                            
     event, values = window.read()    
 
@@ -103,24 +104,21 @@ while True:
     if event:
         if selected_piece is None:
             selected_piece = event
-
-            update_element(window, selected_piece[0], selected_piece[1], "#0B00EF")
+            selected_piece = Game.get_uci_move(event[0], event[1])
+            highlight_move(window, tabuleiro, selected_piece)
+            update_element(window, event[0], event[1], "#0B00EF")
         else:
-            
-            origin = {'row': selected_piece[0], 'col': selected_piece[1]}
-            update_element(window,selected_piece[0], selected_piece[1], get_button_color(origin["row"], origin["col"]))
-            
-            destination = {'row': event[0], 'col': event[1]}
+            origin = selected_piece
+            destination = Game.get_uci_move(event[0], event[1])
 
-            move = make_move(origin, destination)
-
+            move = origin + destination
             # Verifica se o movimento é um roque
-        
+            
             if move in ['e1g1', 'e8g8', 'e1c1', 'e8c8']:
                 print("Roque")
                 tabuleiro.push_uci(move)
             else:
-                if check_if_is_possible_move(tabuleiro, move):
+                if Game.check_if_is_possible_move(tabuleiro, move):
                     tabuleiro.push_uci(move)    
 
                 # Update the board
@@ -135,11 +133,11 @@ while True:
                         if element == ".":
                             window[(i,j)].update(image_filename=pieces[""], 
                                                  image_size=(60,60),
-                                                 button_color = get_button_color(i,j)
+                                                 button_color = Game.get_button_color(i,j)
                                                 )
                         else:
                             window[(i,j)].update(image_filename=pieces[element],
-                                                 button_color = get_button_color(i,j))
+                                                 button_color = Game.get_button_color(i,j))
 
             selected_piece = None
 
