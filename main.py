@@ -61,24 +61,12 @@ def draw_board_by_fen(fen):
 
     return layout
 
-def highlight_move(window, board, move):
-    piece = board.piece_at(chess.SQUARES[chess.parse_square(move)])
-
-    if piece == chess.Piece.from_symbol("P"):
-        pos = Game.convert_from_uci(move)
-        if pos["row"] == 6:
-            for i in range(2, 0, -1):
-                update_element(window, pos["row"] - i, pos["col"], "red")
-        else:
-            update_element(window, pos["row"] - 1, pos["col"], "red")
-            
-    elif piece == chess.Piece.from_symbol("p"):
-        pos = Game.convert_from_uci(move)
-        if pos["row"] == 1:
-            for i in range(2,0,-1):
-                update_element(window, pos["row"] + i, pos["col"], "red")
-        else:
-            update_element(window, pos["row"] + 1, pos["col"], "red")
+def highlight_move(window, board, from_square):
+    moves = board.legal_moves
+    for move in moves:
+       if move.uci()[:2] == from_square:
+           pos = Game.convert_from_uci(move.uci()[2:])
+           update_element(window, pos["row"], pos["col"], "red")
     
 
 
@@ -105,8 +93,13 @@ while True:
         if selected_piece is None:
             selected_piece = event
             selected_piece = Game.get_uci_move(event[0], event[1])
-            highlight_move(window, tabuleiro, selected_piece)
-            update_element(window, event[0], event[1], "#0B00EF")
+            
+            if tabuleiro.piece_at(chess.parse_square(selected_piece)) is not None:
+                highlight_move(window, tabuleiro, selected_piece)
+                update_element(window, event[0], event[1], "#0B00EF")
+            else:
+                selected_piece = None
+            
         else:
             origin = selected_piece
             destination = Game.get_uci_move(event[0], event[1])
