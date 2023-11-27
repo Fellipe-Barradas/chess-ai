@@ -1,6 +1,7 @@
 import PySimpleGUI as sg      
 import chess
 from game import Game
+from engine.ai import Ai
 
 pieces = {
     'r': "images/torre_p.png",
@@ -17,6 +18,24 @@ pieces = {
     'P': "images/peao_b.png",
     '': "images/vazio.png"
 }
+
+def update_board(window, board):
+    board = str(board).split('\n')
+    for i in range(len(board)):
+        board[i] = board[i].split(' ')
+            
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            element = board[i][j]
+            
+            if element == ".":
+                window[(i,j)].update(image_filename=pieces[""], 
+                                     image_size=(60,60),
+                                     button_color = Game.get_button_color(i,j)
+                                     )
+            else:
+                window[(i,j)].update(image_filename=pieces[element],
+                                     button_color = Game.get_button_color(i,j))
 
 def update_element(window, i, j, color):
     window[(i,j)].update(button_color = color)
@@ -82,56 +101,55 @@ window = sg.Window('Tabuleiro',
         ])
 
 selected_piece = None
+player_color = "white"
+ai = Ai("black")
 
-while True:                            
+while True:
+    if not tabuleiro.turn:
+        print("Vez do computador")
+        move = ai.get_best_move(tabuleiro)
+        tabuleiro.push(chess.Move.from_uci(move))
+        print(move)
+        update_board(window, tabuleiro)    
+                                
     event, values = window.read()    
 
     if event == sg.WIN_CLOSED:
         break
-    
-    if event:
-        if selected_piece is None:
-            selected_piece = event
-            selected_piece = Game.get_uci_move(event[0], event[1])
-            
-            if tabuleiro.piece_at(chess.parse_square(selected_piece)) is not None:
-                highlight_move(window, tabuleiro, selected_piece)
-                update_element(window, event[0], event[1], "#0B00EF")
+
+    if tabuleiro.is_game_over():
+        # Mostra popup de fim de jogo
+        break
+    print("Turno: ", tabuleiro.turn)
+    if tabuleiro.turn:
+        if event:
+            if selected_piece is None:
+                selected_piece = event
+                selected_piece = Game.get_uci_move(event[0], event[1])
+
+                if tabuleiro.piece_at(chess.parse_square(selected_piece)) is not None:
+                    highlight_move(window, tabuleiro, selected_piece)
+                    update_element(window, event[0], event[1], "#0B00EF")
+                else:
+                    selected_piece = None
+                
             else:
+                origin = selected_piece
+                destination = Game.get_uci_move(event[0], event[1])
+
+                move = origin + destination
+                # Verifica se o movimento é um roque
+                
+                if move in ['e1g1', 'e8g8', 'e1c1', 'e8c8']:
+                    print("Roque")
+                    tabuleiro.push_uci(move)
+                else:
+                    if Game.check_if_is_possible_move(tabuleiro, move):
+                        tabuleiro.push_uci(move)    
+
+                    # Update the board
+                    update_board(window, tabuleiro)
+
                 selected_piece = None
-            
-        else:
-            origin = selected_piece
-            destination = Game.get_uci_move(event[0], event[1])
-
-            move = origin + destination
-            # Verifica se o movimento é um roque
-            
-            if move in ['e1g1', 'e8g8', 'e1c1', 'e8c8']:
-                print("Roque")
-                tabuleiro.push_uci(move)
-            else:
-                if Game.check_if_is_possible_move(tabuleiro, move):
-                    tabuleiro.push_uci(move)    
-
-                # Update the board
-                board = str(tabuleiro).split('\n')
-                for i in range(len(board)):
-                    board[i] = board[i].split(' ')
-        
-                for i in range(len(board)):
-                    for j in range(len(board[i])):
-                        element = board[i][j]
-                        
-                        if element == ".":
-                            window[(i,j)].update(image_filename=pieces[""], 
-                                                 image_size=(60,60),
-                                                 button_color = Game.get_button_color(i,j)
-                                                )
-                        else:
-                            window[(i,j)].update(image_filename=pieces[element],
-                                                 button_color = Game.get_button_color(i,j))
-
-            selected_piece = None
 
 window.close()
