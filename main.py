@@ -120,7 +120,7 @@ while True:
     if tabuleiro.is_game_over():
         # Mostra popup de fim de jogo
         break
-    print("Turno: ", tabuleiro.turn)
+
     if tabuleiro.turn:
         if event:
             if selected_piece is None:
@@ -137,18 +137,14 @@ while True:
                 origin = selected_piece
                 destination = Game.get_uci_move(event[0], event[1])
 
+                # Movimento do jogador 
                 move = origin + destination
-                # Verifica se o movimento é um roque
-                
-                if move in ['e1g1', 'e8g8', 'e1c1', 'e8c8']:
-                    print("Roque")
-                    tabuleiro.push_uci(move)
-                else:
-                    if Game.check_if_is_possible_move(tabuleiro, move):
-                        tabuleiro.push_uci(move)    
+               
+                if Game.check_if_is_possible_move(tabuleiro, move):
+                    tabuleiro.push_uci(move)    
 
-                    # Update the board
-                    update_board(window, tabuleiro)
+                # Update the board
+                update_board(window, tabuleiro)
 
                 selected_piece = None
 
