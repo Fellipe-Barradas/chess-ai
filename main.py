@@ -42,17 +42,22 @@ def update_element(window, i, j, color):
 
 # Função para desenhar o tabuleiro
 def draw_board_by_fen(fen):
+    pos_letra = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    pos_numero = ['8', '7', '6', '5', '4', '3', '2', '1']
 
     board = fen.split()[0]
     board = board.split('/')
     board = [list(row) for row in board]
     
     layout = []
+
     for i in range(len(board)):
         row = []
+        row.append(sg.Text(pos_numero[i], size=(1, 1), pad=(0, 0), font=("Helvetica", 20))) 
         for j in range(len(board[i])):
+            
             element = board[i][j]
-         
+
             if element.isdigit():
                 for k in range(int(element)):
                     row.append(sg.Button("", 
@@ -75,9 +80,8 @@ def draw_board_by_fen(fen):
                                   )
                 
                 row.append(piece)  
-
+        
         layout.append(row)
-
     return layout
 
 def highlight_move(window, board, from_square):
