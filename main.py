@@ -82,6 +82,10 @@ def draw_board_by_fen(fen):
                 row.append(piece)  
         
         layout.append(row)
+    row = []
+    for i in range(len(pos_letra)):
+        row.append(sg.Text(pos_letra[i], size=(4, 3), pad=(0, 0), font=("Helvetica", 20), justification='center')) 
+    layout.append(row)
     return layout
 
 def highlight_move(window, board, from_square):
