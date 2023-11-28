@@ -40,7 +40,7 @@ def update_board(window, board):
 def update_element(window, i, j, color):
     window[(i,j)].update(button_color = color)
 
-# Função para desenhar o tabuleiro
+
 def draw_board_by_fen(fen):
     pos_letra = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     pos_numero = ['8', '7', '6', '5', '4', '3', '2', '1']
@@ -48,7 +48,7 @@ def draw_board_by_fen(fen):
     board = fen.split()[0]
     board = board.split('/')
     board = [list(row) for row in board]
-    
+
     layout = []
 
     for i in range(len(board)):
@@ -78,7 +78,7 @@ def draw_board_by_fen(fen):
                                   image_size=(60,60),
                                   button_color=(Game.get_button_color(i,j))
                                   )
-                
+
                 row.append(piece)  
         
         layout.append(row)
@@ -94,25 +94,56 @@ def highlight_move(window, board, from_square):
        if move.uci()[:2] == from_square:
            pos = Game.convert_from_uci(move.uci()[2:])
            update_element(window, pos["row"], pos["col"], "red")
-    
 
-
-## Main
-
+ 
 tabuleiro = chess.Board()
-
 tabuleiro_layout = draw_board_by_fen(tabuleiro.fen())      
+movements_layout = sg.Listbox(values=[], size=(10, 20), key='-MOVEMENTS-')
+turn_label = sg.Text('Turno do Jogador Branco', key='-TURN-')
+reset_button = sg.Button('Reiniciar Partida', key='-RESET-')
 
-window = sg.Window('Tabuleiro', 
-        [
-            [sg.Column(tabuleiro_layout, element_justification='center', key='-TABULEIRO-')],
-        ])
+layout = [
+    [
+        sg.Column(tabuleiro_layout, element_justification='center', key='-TABULEIRO-'),
+        sg.Column([[turn_label], [sg.Text('Movimentos')], [movements_layout], [reset_button]], element_justification='center')
+    ],
+]
+
+window = sg.Window('Tabuleiro', layout)
 
 selected_piece = None
+
 player_color = "white"
 ai = Ai("black")
+movements = []
+white_turn = True
 
 while True:
+    if event == '-RESET-':
+        print("Resetando")
+        tabuleiro.reset()
+        movements = []
+        window['-MOVEMENTS-'].update(values=movements)
+        white_turn = True
+        turn_label.update('Turno do Jogador Branco')
+
+        board = str(tabuleiro).split('\n')
+        for i in range(len(board)):
+            board[i] = board[i].split(' ')
+
+        for i in range(len(board)):
+                for j in range(len(board[i])):
+                    element = board[i][j]
+                    
+                    if element == ".":
+                        window[(i,j)].update(image_filename=pieces[""], 
+                                                image_size=(60,60),
+                                                button_color = get_button_color(i,j)
+                                            )
+                    else:
+                        window[(i,j)].update(image_filename=pieces[element],
+                                                button_color = get_button_color(i,j))
+                     
     if not tabuleiro.turn:
         print("Vez do computador")
         move = ai.get_best_move(tabuleiro)
@@ -140,7 +171,6 @@ while True:
                     update_element(window, event[0], event[1], "#0B00EF")
                 else:
                     selected_piece = None
-                
             else:
                 origin = selected_piece
                 destination = Game.get_uci_move(event[0], event[1])
@@ -150,6 +180,14 @@ while True:
                
                 if Game.check_if_is_possible_move(tabuleiro, move):
                     tabuleiro.push_uci(move)    
+                    movements.append(move)
+                    window['-MOVEMENTS-'].update(values=movements)
+
+                    # Alterna o turno
+                    white_turn = not white_turn
+
+                    # Atualiza a label de turno
+                    turn_label.update('Turno do Jogador Branco' if white_turn else 'Turno do Jogador Preto')
 
                 # Update the board
                 update_board(window, tabuleiro)
