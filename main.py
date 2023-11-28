@@ -106,6 +106,11 @@ while True:
         window['-MOVEMENTS-'].update(values=movements)
         white_turn = True
         turn_label.update('Turno do Jogador Branco')
+
+        board = str(tabuleiro).split('\n')
+        for i in range(len(board)):
+            board[i] = board[i].split(' ')
+
         for i in range(len(board)):
                 for j in range(len(board[i])):
                     element = board[i][j]
