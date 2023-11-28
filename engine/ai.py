@@ -1,5 +1,5 @@
 from engine.engine import Engine
-import chess
+
 class Ai:
     def __init__(self, color):
         self.engine = Engine()
