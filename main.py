@@ -137,6 +137,8 @@ while True:
         move = ai.get_best_move(tabuleiro)
         tabuleiro.push(chess.Move.from_uci(move))
         print(move)
+        movements.append(move)
+        window['-MOVEMENTS-'].update(values=movements)
         update_board(window, tabuleiro)    
     
     event, values = window.read() 

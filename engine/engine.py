@@ -3,7 +3,7 @@ import chess
 
 class Engine:
     def __init__(self):
-       self.engine = Stockfish(depth=20,path=r"C:\Users\larav\chess-ai\engine\stockfish\stockfish-windows-x86-64-avx2.exe",parameters={
+       self.engine = Stockfish(depth=20,path=r"\engine\stockfish\stockfish-windows-x86-64-avx2.exe",parameters={
             "Debug Log File": "",
             "Contempt": 0,
             "Min Split Depth": 0,
