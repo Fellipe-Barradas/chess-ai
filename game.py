@@ -27,3 +27,7 @@ class Game:
             "col" : colluns.index(pos[0]),
             'row': rows.index(pos[1])
         }
+    
+    @staticmethod
+    def get_turn_color(board):
+        return "white" if board.turn == chess.WHITE else "black"
