@@ -1,7 +1,7 @@
 # Chess-challeng AI
 
 ## Introdução
-Este projeto foi concebido com o objetivo de competir em um desafio de xadrez que envolve inteligência artificial,foi aplicada a linguagem Python e algoritmos de eficácia substancial. Tal iniciativa conta com a colaboração de: Brunna, Luis e Lara.
+Este projeto foi concebido com o objetivo de competir em um desafio de xadrez que envolve inteligência artificial,foi aplicada a linguagem Python e algoritmos de desempenho considerável. Tal iniciativa conta com a colaboração de: Brunna, Luis e Lara.
 
 ## Requisitos
 - Python 3.8.5
