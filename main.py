@@ -119,31 +119,9 @@ movements = []
 white_turn = True
 
 while True:
-    if event == '-RESET-':
-        print("Resetando")
-        tabuleiro.reset()
-        movements = []
-        window['-MOVEMENTS-'].update(values=movements)
-        white_turn = True
-        turn_label.update('Turno do Jogador Branco')
 
-        board = str(tabuleiro).split('\n')
-        for i in range(len(board)):
-            board[i] = board[i].split(' ')
-
-        for i in range(len(board)):
-                for j in range(len(board[i])):
-                    element = board[i][j]
-                    
-                    if element == ".":
-                        window[(i,j)].update(image_filename=pieces[""], 
-                                                image_size=(60,60),
-                                                button_color = get_button_color(i,j)
-                                            )
-                    else:
-                        window[(i,j)].update(image_filename=pieces[element],
-                                                button_color = get_button_color(i,j))
-                     
+    event, values = window.read(timeout=10)
+                                      
     if not tabuleiro.turn:
         print("Vez do computador")
         move = ai.get_best_move(tabuleiro)
@@ -162,7 +140,32 @@ while True:
 
     if tabuleiro.turn:
         if event:
-            if selected_piece is None:
+            if event == '-RESET-':
+                print("Resetando")
+                tabuleiro.reset()
+                movements = []
+                selected_piece = None
+                window['-MOVEMENTS-'].update(values=movements)
+                white_turn = True
+                turn_label.update('Turno do Jogador Branco')
+
+                board = str(tabuleiro).split('\n')
+                for i in range(len(board)):
+                    board[i] = board[i].split(' ')
+
+                for i in range(len(board)):
+                        for j in range(len(board[i])):
+                            element = board[i][j]
+                            
+                            if element == ".":
+                                window[(i,j)].update(image_filename=pieces[""], 
+                                                        image_size=(60,60),
+                                                        button_color = Game.get_button_color(i,j)
+                                                    )
+                            else:
+                                window[(i,j)].update(image_filename=pieces[element],
+                                                        button_color = Game.get_button_color(i,j))
+            elif selected_piece is None:
                 selected_piece = event
                 selected_piece = Game.get_uci_move(event[0], event[1])
 
