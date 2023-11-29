@@ -3,6 +3,7 @@ import chess
 
 class Engine:
     def __init__(self):
+       
        self.engine = Stockfish(depth=20, parameters={
             "Debug Log File": "",
             "Contempt": 0,

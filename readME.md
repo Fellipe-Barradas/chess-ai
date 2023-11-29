@@ -12,3 +12,22 @@ Para instalar as dependências do projeto, basta executar o comando abaixo:
 ```bash
     pip install -r requirements.txt
 ```
+
+## Execução
+
+Crie o ambiente virtual:
+```bash
+    python -m venv venv
+
+    # Ative o ambiente virtual
+
+    source venv/bin/activate
+
+    # Instale as dependências
+
+    pip install -r requirements.txt
+
+    # Execute o projeto
+
+    python main.py
+```
