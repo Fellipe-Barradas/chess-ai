@@ -113,11 +113,13 @@ movements_layout = sg.Listbox(values=[], size=(10, 20), key='-MOVEMENTS-')
 turn_label = sg.Text('Turno do Jogador Branco', key='-TURN-')
 reset_button = sg.Button('Reiniciar Partida', key='-RESET-')
 row_exit_button = sg.Button('Sair', key='-EXIT-', size=(6, 1), pad=(5, 5))
+input_layout = [sg.Text('Escolha o movimento:'), sg.InputText(key='-INPUT-'), sg.Button('Enviar', key='-SEND-')]
 
 layout = [
     [
         sg.Column(tabuleiro_layout, element_justification='center', key='-TABULEIRO-'),
-        sg.Column([[turn_label], [sg.Text('Movimentos')], [movements_layout], [reset_button],[row_exit_button]], element_justification='center')
+        sg.Column([[turn_label], [sg.Text('Movimentos')], [movements_layout], [reset_button],[row_exit_button]], element_justification='center'),
+        [input_layout]
     ],
 ]
 
@@ -174,7 +176,7 @@ while True:
                     break
 
             if tabuleiro.is_game_over():
-                # Mostra popup de fim de jogo
+
                 if tabuleiro.is_checkmate():
                     sg.popup_ok('Xeque-mate')
                 elif tabuleiro.is_stalemate():
@@ -193,6 +195,16 @@ while True:
                 movements = []
                 selected_piece = None
                 window['-MOVEMENTS-'].update(values=movements)
+                update_board(window, tabuleiro)
+
+            elif event == '-SEND-':
+                move = values['-INPUT-']
+                if Game.check_if_is_possible_move(tabuleiro, move):
+                    tabuleiro.push_uci(move)    
+                    movements.append(move)
+                    window['-MOVEMENTS-'].update(values=movements)
+
+                # Update the board
                 update_board(window, tabuleiro)
             
             elif selected_piece is None:
